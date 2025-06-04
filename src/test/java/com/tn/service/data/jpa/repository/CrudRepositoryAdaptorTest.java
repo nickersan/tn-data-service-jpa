@@ -2,6 +2,7 @@ package com.tn.service.data.jpa.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import static com.tn.service.data.domain.Direction.DESCENDING;
@@ -150,41 +151,79 @@ class CrudRepositoryAdaptorTest
     assertEquals(page(entities), new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
-//  @Override
-//  public V insert(V value) throws InsertException
-//  {
-//    return repository.save(value);
-//  }
-//
-//  @Override
-//  public Collection<V> insertAll(Iterable<V> values) throws InsertException
-//  {
-//    return asList(repository.saveAll(values));
-//  }
-//
-//  @Override
-//  public V update(V value) throws UpdateException
-//  {
-//    return repository.save(value);
-//  }
-//
-//  @Override
-//  public Collection<V> updateAll(Iterable<V> values) throws UpdateException
-//  {
-//    return asList(repository.saveAll(values));
-//  }
-//
-//  @Override
-//  public void delete(K key) throws DeleteException
-//  {
-//    repository.deleteById(key);
-//  }
-//
-//  @Override
-//  public void deleteAll(Iterable<K> keys) throws DeleteException
-//  {
-//    repository.deleteAllById(keys);
-//  }
+  @Test
+  void shouldInsert()
+  {
+    Object entity = new Object();
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.save(entity)).thenReturn(entity);
+
+    assertEquals(entity, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).insert(entity));
+  }
+
+  @Test
+  void shouldInsertAll()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.saveAll(entities)).thenReturn(entities);
+
+    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).insertAll(entities));
+  }
+
+  @Test
+  void shouldUpdate()
+  {
+    Object entity = new Object();
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.save(entity)).thenReturn(entity);
+
+    assertEquals(entity, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).update(entity));
+  }
+
+  @Test
+  void shouldUpdateAll()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.saveAll(entities)).thenReturn(entities);
+
+    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).updateAll(entities));
+  }
+
+  @Test
+  void shouldDelete()
+  {
+    int key = 1;
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+
+    new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).delete(key);
+
+    verify(repository).deleteById(key);
+  }
+
+  @Test
+  void shouldDeleteAll()
+  {
+    List<Integer> keys = List.of(1, 2, 3);
+
+    @SuppressWarnings("unchecked")
+    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+
+    new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).deleteAll(keys);
+
+    verify(repository).deleteAllById(keys);
+  }
 
   private Sort customSort()
   {
