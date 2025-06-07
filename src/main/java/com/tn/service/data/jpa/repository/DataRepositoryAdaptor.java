@@ -18,12 +18,12 @@ import com.tn.service.data.repository.FindException;
 import com.tn.service.data.repository.InsertException;
 import com.tn.service.data.repository.UpdateException;
 
-public class CrudRepositoryAdaptor<K, V> implements DataRepository<K, V>
+public class DataRepositoryAdaptor<K, V> implements DataRepository<K, V>
 {
   private final QueryablePagingAndSortingCrudRepository<K, V> repository;
   private final String[] defaultSort;
 
-  public CrudRepositoryAdaptor(QueryablePagingAndSortingCrudRepository<K, V> repository, String... defaultSort)
+  public DataRepositoryAdaptor(QueryablePagingAndSortingCrudRepository<K, V> repository, String... defaultSort)
   {
     this.repository = repository;
     this.defaultSort = defaultSort;

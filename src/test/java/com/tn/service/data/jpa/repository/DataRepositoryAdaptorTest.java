@@ -18,7 +18,7 @@ import org.springframework.data.domain.Sort;
 
 import com.tn.lang.util.Page;
 
-class CrudRepositoryAdaptorTest
+class DataRepositoryAdaptorTest
 {
   private static final String CUSTOM_SORT = "someOtherField";
   private static final String DEFAULT_SORT = "someField";
@@ -35,7 +35,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findById(key)).thenReturn(Optional.of(entity));
 
-    assertEquals(entity, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).find(key).orElse(null));
+    assertEquals(entity, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).find(key).orElse(null));
   }
 
   @Test
@@ -47,7 +47,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findAll(defaultSort())).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll());
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll());
   }
 
   @Test
@@ -59,7 +59,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findAll(customSort())).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(Set.of(CUSTOM_SORT), DESCENDING));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
@@ -71,7 +71,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, defaultSort()))).thenReturn(springPage(entities));
 
-    assertEquals(page(entities), new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE));
+    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE));
   }
 
   @Test
@@ -83,7 +83,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, customSort()))).thenReturn(springPage(entities));
 
-    assertEquals(page(entities), new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
+    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
@@ -96,7 +96,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findAllById(keys)).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(keys));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(keys));
   }
 
   @Test
@@ -109,7 +109,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findWhere(query, defaultSort())).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query));
   }
 
   @Test
@@ -122,7 +122,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findWhere(query, customSort())).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, Set.of(CUSTOM_SORT), DESCENDING));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
@@ -135,7 +135,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, defaultSort()))).thenReturn(springPage(entities));
 
-    assertEquals(page(entities), new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE));
+    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE));
   }
 
   @Test
@@ -148,7 +148,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, customSort()))).thenReturn(springPage(entities));
 
-    assertEquals(page(entities), new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
+    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
@@ -160,7 +160,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.save(entity)).thenReturn(entity);
 
-    assertEquals(entity, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).insert(entity));
+    assertEquals(entity, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).insert(entity));
   }
 
   @Test
@@ -172,7 +172,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.saveAll(entities)).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).insertAll(entities));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).insertAll(entities));
   }
 
   @Test
@@ -184,7 +184,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.save(entity)).thenReturn(entity);
 
-    assertEquals(entity, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).update(entity));
+    assertEquals(entity, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).update(entity));
   }
 
   @Test
@@ -196,7 +196,7 @@ class CrudRepositoryAdaptorTest
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
     when(repository.saveAll(entities)).thenReturn(entities);
 
-    assertEquals(entities, new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).updateAll(entities));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).updateAll(entities));
   }
 
   @Test
@@ -207,7 +207,7 @@ class CrudRepositoryAdaptorTest
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
 
-    new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).delete(key);
+    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).delete(key);
 
     verify(repository).deleteById(key);
   }
@@ -220,7 +220,7 @@ class CrudRepositoryAdaptorTest
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
 
-    new CrudRepositoryAdaptor<>(repository, DEFAULT_SORT).deleteAll(keys);
+    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).deleteAll(keys);
 
     verify(repository).deleteAllById(keys);
   }
