@@ -1,5 +1,7 @@
 package com.tn.service.data.jpa.repository;
 
+import static java.util.Collections.emptyList;
+
 import static com.tn.lang.Iterables.asArray;
 import static com.tn.lang.Iterables.asList;
 import static com.tn.lang.Iterables.isEmpty;
@@ -9,7 +11,9 @@ import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.tn.lang.Iterables;
 import com.tn.lang.util.Page;
 import com.tn.service.data.domain.Direction;
 import com.tn.service.data.repository.DataRepository;
@@ -18,21 +22,21 @@ import com.tn.service.data.repository.FindException;
 import com.tn.service.data.repository.InsertException;
 import com.tn.service.data.repository.UpdateException;
 
-public class DataRepositoryAdaptor<K, V> implements DataRepository<K, V>
+public class DataRepositoryAdaptor<ID, V> implements DataRepository<ID, V>
 {
-  private final QueryablePagingAndSortingCrudRepository<K, V> repository;
+  private final QueryablePagingAndSortingCrudRepository<ID, V> repository;
   private final String[] defaultSort;
 
-  public DataRepositoryAdaptor(QueryablePagingAndSortingCrudRepository<K, V> repository, String... defaultSort)
+  public DataRepositoryAdaptor(QueryablePagingAndSortingCrudRepository<ID, V> repository, String... defaultSort)
   {
     this.repository = repository;
     this.defaultSort = defaultSort;
   }
 
   @Override
-  public Optional<V> find(K key) throws FindException
+  public Optional<V> find(ID identity) throws FindException
   {
-    return repository.findById(key);
+    return repository.findById(identity);
   }
 
   @Override
@@ -42,15 +46,15 @@ public class DataRepositoryAdaptor<K, V> implements DataRepository<K, V>
   }
 
   @Override
-  public Page<V> findAll(int pageNumber, int pageSize, Iterable<String> sort, Direction direction) throws FindException
+  public Collection<V> findAll(Iterable<ID> identities) throws FindException
   {
-    return asPage(repository.findAll(PageRequest.of(pageNumber, pageSize, asSort(sort, direction))));
+    return asList(repository.findAllById(identities));
   }
 
   @Override
-  public Collection<V> findAll(Iterable<K> keys) throws FindException
+  public Page<V> findAll(int pageNumber, int pageSize, Iterable<String> sort, Direction direction) throws FindException
   {
-    return asList(repository.findAllById(keys));
+    return asPage(repository.findAll(PageRequest.of(pageNumber, pageSize, asSort(sort, direction))));
   }
 
   @Override
@@ -90,15 +94,25 @@ public class DataRepositoryAdaptor<K, V> implements DataRepository<K, V>
   }
 
   @Override
-  public void delete(K key) throws DeleteException
+  @Transactional
+  public Optional<V> delete(ID identity) throws DeleteException
   {
-    repository.deleteById(key);
+    Optional<V> entity = repository.findById(identity);
+    entity.ifPresent(repository::delete);
+    
+    return entity;
   }
 
   @Override
-  public void deleteAll(Iterable<K> keys) throws DeleteException
+  @Transactional
+  public Collection<V> deleteAll(Iterable<ID> identities) throws DeleteException
   {
-    repository.deleteAllById(keys);
+    Collection<V> entities = asList(repository.findAllById(identities));
+    if (entities.size() != Iterables.size(identities)) return emptyList();
+
+    repository.deleteAll(entities);
+
+    return entities;
   }
 
   private Page<V> asPage(org.springframework.data.domain.Page<V> page)

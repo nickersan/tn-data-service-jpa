@@ -26,127 +26,77 @@ class DataRepositoryAdaptorTest
   private static final int PAGE_SIZE = 10;
 
   @Test
-  void shouldFindWithKey()
+  void shouldFindWithIdentity()
   {
-    int key = 1;
+    int identity = 1;
     Object entity = new Object();
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findById(key)).thenReturn(Optional.of(entity));
+    when(repository.findById(identity)).thenReturn(Optional.of(entity));
 
-    assertEquals(entity, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).find(key).orElse(null));
+    assertEquals(entity, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).find(identity).orElse(null));
   }
 
   @Test
-  void shouldFindAllWithDefaultSort()
+  void shouldFindAllWithSort()
   {
     List<Object> entities = List.of(new Object(), new Object(), new Object());
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findAll(defaultSort())).thenReturn(entities);
-
-    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll());
-  }
-
-  @Test
-  void shouldFindAllWithCustomSort()
-  {
-    List<Object> entities = List.of(new Object(), new Object(), new Object());
-
-    @SuppressWarnings("unchecked")
-    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findAll(customSort())).thenReturn(entities);
+    when(repository.findAll(sort())).thenReturn(entities);
 
     assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
-  void shouldFindAllWithPaginationAndDefaultSort()
+  void shouldFindAllWithPaginationAndSort()
   {
     List<Object> entities = List.of(new Object(), new Object(), new Object());
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, defaultSort()))).thenReturn(springPage(entities));
-
-    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE));
-  }
-
-  @Test
-  void shouldFindAllWithPaginationAndCustomSort()
-  {
-    List<Object> entities = List.of(new Object(), new Object(), new Object());
-
-    @SuppressWarnings("unchecked")
-    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, customSort()))).thenReturn(springPage(entities));
+    when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, sort()))).thenReturn(springPage(entities));
 
     assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
-  void shouldFindAllWithKeys()
+  void shouldFindAllWithIdentities()
   {
-    List<Integer> keys = List.of(1, 2, 3);
+    List<Integer> identities = List.of(1, 2, 3);
     List<Object> entities = List.of(new Object(), new Object(), new Object());
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findAllById(keys)).thenReturn(entities);
+    when(repository.findAllById(identities)).thenReturn(entities);
 
-    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(keys));
+    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findAll(identities));
   }
 
   @Test
-  void shouldFindWhereWithDefaultSort()
+  void shouldFindWhereWithSort()
   {
     List<Object> entities = List.of(new Object(), new Object(), new Object());
     String query = "field=value";
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findWhere(query, defaultSort())).thenReturn(entities);
-
-    assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query));
-  }
-
-  @Test
-  void shouldFindWhereWithCustomSort()
-  {
-    List<Object> entities = List.of(new Object(), new Object(), new Object());
-    String query = "field=value";
-
-    @SuppressWarnings("unchecked")
-    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findWhere(query, customSort())).thenReturn(entities);
+    when(repository.findWhere(query, sort())).thenReturn(entities);
 
     assertEquals(entities, new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, Set.of(CUSTOM_SORT), DESCENDING));
   }
 
   @Test
-  void shouldFindWhereWithPaginationAndDefaultSort()
+  void shouldFindWhereWithPaginationAndSort()
   {
     List<Object> entities = List.of(new Object(), new Object(), new Object());
     String query = "field=value";
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, defaultSort()))).thenReturn(springPage(entities));
-
-    assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE));
-  }
-
-  @Test
-  void shouldFindWhereWithPaginationAndCustomSort()
-  {
-    List<Object> entities = List.of(new Object(), new Object(), new Object());
-    String query = "field=value";
-
-    @SuppressWarnings("unchecked")
-    QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
-    when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, customSort()))).thenReturn(springPage(entities));
+    when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, sort()))).thenReturn(springPage(entities));
 
     assertEquals(page(entities), new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING));
   }
@@ -202,37 +152,36 @@ class DataRepositoryAdaptorTest
   @Test
   void shouldDelete()
   {
-    int key = 1;
+    int identity = 1;
+    Object entity = new Object();
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.findById(identity)).thenReturn(Optional.of(entity));
 
-    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).delete(key);
+    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).delete(identity);
 
-    verify(repository).deleteById(key);
+    verify(repository).delete(entity);
   }
 
   @Test
   void shouldDeleteAll()
   {
-    List<Integer> keys = List.of(1, 2, 3);
+    List<Integer> identities = List.of(1, 2, 3);
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
 
     @SuppressWarnings("unchecked")
     QueryablePagingAndSortingCrudRepository<Integer, Object> repository = mock(QueryablePagingAndSortingCrudRepository.class);
+    when(repository.findAllById(identities)).thenReturn(entities);
 
-    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).deleteAll(keys);
+    new DataRepositoryAdaptor<>(repository, DEFAULT_SORT).deleteAll(identities);
 
-    verify(repository).deleteAllById(keys);
+    verify(repository).deleteAll(entities);
   }
 
-  private Sort customSort()
+  private Sort sort()
   {
     return Sort.by(Sort.Direction.DESC, CUSTOM_SORT);
-  }
-
-  private Sort defaultSort()
-  {
-    return Sort.by(Sort.Direction.ASC, DEFAULT_SORT);
   }
 
   private Page<Object> page(List<Object> entities)
