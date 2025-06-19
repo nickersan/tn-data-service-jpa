@@ -9,9 +9,10 @@ import static com.tn.lang.Iterables.isEmpty;
 import java.util.Collection;
 import java.util.Optional;
 
+import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tn.lang.Iterables;
 import com.tn.lang.util.Page;
