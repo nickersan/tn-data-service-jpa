@@ -30,6 +30,13 @@
 
     <dependency>
       <groupId>com.tn.query</groupId>
+      <artifactId>tn-query-java</artifactId>
+      <version>0.0.01-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.tn.query</groupId>
       <artifactId>tn-query-jpa</artifactId>
       <version>0.0.01-SNAPSHOT</version>
     </dependency>
