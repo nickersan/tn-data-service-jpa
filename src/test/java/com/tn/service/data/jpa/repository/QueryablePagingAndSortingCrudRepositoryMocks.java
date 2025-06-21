@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.lenient;
 
+import static com.tn.lang.Iterables.asSet;
 import static com.tn.lang.util.stream.Collectors.by;
 
 import java.util.Collection;
@@ -16,36 +17,63 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Sort;
 
+import com.tn.query.DefaultQueryParser;
+import com.tn.query.Mapper;
+import com.tn.query.QueryParser;
 import com.tn.query.java.Getter;
+import com.tn.query.java.JavaPredicateFactory;
 
 public class QueryablePagingAndSortingCrudRepositoryMocks
 {
   private QueryablePagingAndSortingCrudRepositoryMocks() {}
 
   @SafeVarargs
-  public static <T, ID> void initializeFindMethods(QueryablePagingAndSortingCrudRepository<T, ID> repository, Getter<T> idGetter, Collection<Getter<T>> getters, T... entities)
+  public static <T, ID> void initializeFindMethods(
+    QueryablePagingAndSortingCrudRepository<T, ID> repository,
+    Getter<T> idGetter,
+    Collection<Getter<T>> getters,
+    Collection<Mapper> mappers,
+    T... entities
+  )
   {
     Map<String, Getter<T>> gettersByName = new HashMap<>();
     gettersByName.put(idGetter.name(), idGetter);
     gettersByName.putAll(getters.stream().collect(by(Getter::name)));
 
-    lenient().when(repository.findAll(isA(Sort.class))).thenAnswer(findAllAnswer(gettersByName, entities));
+    Function<Sort, Comparator<T>> comparatorFactory = sort -> toComparator(gettersByName, sort);
+    QueryParser<Predicate<T>> queryParser = new DefaultQueryParser<>(new JavaPredicateFactory<>(gettersByName.values()), mappers);
+
+    lenient().when(repository.findAll(isA(Sort.class))).thenAnswer(findAllAnswer(comparatorFactory, entities));
+    lenient().when(repository.findAllById(any())).thenAnswer(findAllByIdAnswer(idGetter, entities));
     lenient().when(repository.findById(any())).thenAnswer(findByIdAnswer(idGetter, entities));
+    lenient().when(repository.findWhere(any(), isA(Sort.class))).thenAnswer(findWhereAnswer(queryParser, comparatorFactory, entities));
   }
 
-  private static <T> Answer<?> findAllAnswer(Map<String, Getter<T>> gettersByName, T[] entities)
+  private static <T> Answer<?> findAllAnswer(Function<Sort, Comparator<T>> comparatorFactory, T[] entities)
   {
     return invocation ->
     {
       Sort sort = invocation.getArgument(0);
       return sort.isEmpty()
         ? List.of(entities)
-        : Stream.of(entities).sorted(toComparator(gettersByName, invocation.getArgument(0))).toList();
+        : Stream.of(entities).sorted(comparatorFactory.apply(invocation.getArgument(0))).toList();
+    };
+  }
+
+  private static <T> Answer<?> findAllByIdAnswer(Getter<T> idGetter, T[] entities)
+  {
+    return invocation ->
+    {
+      Collection<?> identities = asSet((Iterable<?>)invocation.getArgument(0));
+      return Stream.of(entities)
+        .filter(entity -> identities.contains(idGetter.get(entity)))
+        .toList();
     };
   }
 
@@ -54,6 +82,14 @@ public class QueryablePagingAndSortingCrudRepositoryMocks
     return invocation -> Stream.of(entities)
       .filter(entity -> Objects.equals(idGetter.get(entity), invocation.getArgument(0)))
       .findFirst();
+  }
+
+  private static <T> Answer<?> findWhereAnswer(QueryParser<Predicate<T>> queryParser, Function<Sort, Comparator<T>> comparatorFactory, T[] entities)
+  {
+    return invocation -> Stream.of(entities)
+      .filter(queryParser.parse(invocation.getArgument(0)))
+      .sorted(comparatorFactory.apply(invocation.getArgument(1)))
+      .toList();
   }
 
   private static <T> Comparator<T> toComparator(Map<String, Getter<T>> gettersByName, Sort sort)
