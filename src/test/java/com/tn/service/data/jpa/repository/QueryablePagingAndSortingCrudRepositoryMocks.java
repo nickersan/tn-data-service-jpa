@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.lenient;
 
 import static com.tn.lang.Iterables.asSet;
+import static com.tn.lang.Iterables.asStream;
 import static com.tn.lang.util.stream.Collectors.by;
 
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.mockito.stubbing.Answer;
@@ -53,6 +55,12 @@ public class QueryablePagingAndSortingCrudRepositoryMocks
     lenient().when(repository.findAllById(any())).thenAnswer(findAllByIdAnswer(idGetter, entities));
     lenient().when(repository.findById(any())).thenAnswer(findByIdAnswer(idGetter, entities));
     lenient().when(repository.findWhere(any(), isA(Sort.class))).thenAnswer(findWhereAnswer(queryParser, comparatorFactory, entities));
+  }
+
+  public static <T, ID> void initializeSaveMethods(QueryablePagingAndSortingCrudRepository<T, ID> repository, UnaryOperator<T> saveCallback)
+  {
+    lenient().when(repository.save(any())).thenAnswer(invocation -> saveCallback.apply(invocation.getArgument(0)));
+    lenient().when(repository.saveAll(any())).thenAnswer(invocation -> asStream(invocation.<Iterable<T>>getArgument(0)).map(saveCallback).toList());
   }
 
   private static <T> Answer<?> findAllAnswer(Function<Sort, Comparator<T>> comparatorFactory, T[] entities)
