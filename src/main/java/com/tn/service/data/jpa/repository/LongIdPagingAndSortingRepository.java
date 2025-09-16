@@ -8,21 +8,25 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.tn.query.jpa.QueryableRepository;
 
-public interface QueryablePagingAndSortingCrudRepository<T, ID, ID_TYPE> extends QueryableRepository<T>, PagingAndSortingRepository<T, ID_TYPE>
+public interface LongIdPagingAndSortingRepository<T, ID> extends PagingAndSortingRepository<T, ID>, QueryableRepository<T>
 {
   Iterable<T> findAll();
 
-  Optional<T> findById(ID id);
+  Optional<T> findById(long id);
 
-  Iterable<T> findAllById(Iterable<ID> id);
+  Iterable<T> findAllById(Iterable<Long> id);
 
   T save(T entity);
 
+  @Transactional
   Iterable<T> saveAll(Iterable<T> entities);
 
   @Transactional
-  void deleteById(ID id);
+  void deleteById(long id);
 
   @Transactional
-  void deleteAllById(Iterable<? extends ID> ids);
+  default void deleteAllById(Iterable<Long> id)
+  {
+    id.forEach(this::deleteById);
+  }
 }
