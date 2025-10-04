@@ -1,28 +1,8 @@
 package com.tn.service.data.jpa.repository;
 
-import java.util.Optional;
-
-import jakarta.transaction.Transactional;
-
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.tn.query.jpa.QueryableRepository;
 
-public interface QueryablePagingAndSortingCrudRepository<T, ID, ID_TYPE> extends QueryableRepository<T>, PagingAndSortingRepository<T, ID_TYPE>
-{
-  Iterable<T> findAll();
-
-  Optional<T> findById(ID id);
-
-  Iterable<T> findAllById(Iterable<ID> id);
-
-  T save(T entity);
-
-  Iterable<T> saveAll(Iterable<T> entities);
-
-  @Transactional
-  void deleteById(ID id);
-
-  @Transactional
-  void deleteAllById(Iterable<? extends ID> ids);
-}
+public interface QueryablePagingAndSortingCrudRepository<T, ID> extends QueryableRepository<T>, CrudRepository<T, ID>, PagingAndSortingRepository<T, ID> {}
