@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/nickersan/tn-data-service-jpa/compare/v1.0.0...v1.1.0) (2025-10-04)
+
+
+### Features
+
+* Adding interface to support time-series repositories. ([#4](https://github.com/nickersan/tn-data-service-jpa/issues/4)) ([29842bc](https://github.com/nickersan/tn-data-service-jpa/commit/29842bcdf3aad20adeab5d4599b23cfa4ab2420f))
+
 ## 1.0.0 (2025-07-19)
 
 
