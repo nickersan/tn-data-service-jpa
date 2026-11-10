@@ -1,9 +1,12 @@
 package com.tn.service.data.jpa.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import static com.tn.service.data.domain.Direction.ASCENDING;
 import static com.tn.service.data.domain.Direction.DESCENDING;
 
 import java.util.List;
@@ -53,6 +56,8 @@ class DataRepositoryAdaptorTest
   Consumer<Integer> deleteById;
   @Mock
   Consumer<Iterable<Integer>> deleteAllById;
+  @Mock
+  LongIdPagingAndSortingRepository<Object, Object> repository;
 
   private DataRepositoryAdaptor<Object, Integer> dataRepositoryAdaptor;
 
@@ -202,6 +207,185 @@ class DataRepositoryAdaptorTest
     assertEquals(entities, dataRepositoryAdaptor.deleteAll(identities));
 
     verify(deleteAllById).accept(identities);
+  }
+
+  @Test
+  void shouldFindAllWithDefaultSortWhenNoSort()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(findAll.apply(Sort.by(Sort.Direction.ASC, DEFAULT_SORT))).thenReturn(entities);
+
+    assertEquals(entities, dataRepositoryAdaptor.findAll(Set.of(), ASCENDING));
+  }
+
+  @Test
+  void shouldNotDeleteWhenNotFound()
+  {
+    int identity = 1;
+
+    when(findById.apply(identity)).thenReturn(Optional.empty());
+
+    assertTrue(dataRepositoryAdaptor.delete(identity).isEmpty());
+
+    verifyNoInteractions(deleteById);
+  }
+
+  @Test
+  void shouldNotDeleteAllWhenAnyNotFound()
+  {
+    List<Integer> identities = List.of(1, 2, 3);
+    List<Object> entities = List.of(new Object(), new Object());
+
+    when(findAllById.apply(identities)).thenReturn(entities);
+
+    assertTrue(dataRepositoryAdaptor.deleteAll(identities).isEmpty());
+
+    verifyNoInteractions(deleteAllById);
+  }
+
+  @Test
+  void shouldFindWithIdentityFromRepository()
+  {
+    Object entity = new Object();
+
+    when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+    assertEquals(entity, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).find(1L).orElse(null));
+  }
+
+  @Test
+  void shouldFindAllWithSortFromRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.findAll(sort())).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findAll(Set.of(CUSTOM_SORT), DESCENDING));
+  }
+
+  @Test
+  void shouldFindAllWithDefaultSortFromRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.findAll(Sort.by(Sort.Direction.ASC, DEFAULT_SORT))).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findAll(Set.of(), ASCENDING));
+  }
+
+  @Test
+  void shouldFindAllWithPaginationAndSortFromRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.findAll(PageRequest.of(PAGE_NUMBER, PAGE_SIZE, sort()))).thenReturn(springPage(entities));
+
+    assertEquals(
+      page(entities),
+      DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findAll(PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING)
+    );
+  }
+
+  @Test
+  void shouldFindAllWithIdentitiesFromRepository()
+  {
+    List<Long> identities = List.of(1L, 2L, 3L);
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.findAllById(identities)).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findAll(identities));
+  }
+
+  @Test
+  void shouldFindWhereWithSortFromRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+    String query = "field=value";
+
+    when(repository.findWhere(query, sort())).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findWhere(query, Set.of(CUSTOM_SORT), DESCENDING));
+  }
+
+  @Test
+  void shouldFindWhereWithPaginationAndSortFromRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+    String query = "field=value";
+
+    when(repository.findWhere(query, PageRequest.of(PAGE_NUMBER, PAGE_SIZE, sort()))).thenReturn(springPage(entities));
+
+    assertEquals(
+      page(entities),
+      DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).findWhere(query, PAGE_NUMBER, PAGE_SIZE, Set.of(CUSTOM_SORT), DESCENDING)
+    );
+  }
+
+  @Test
+  void shouldInsertIntoRepository()
+  {
+    Object entity = new Object();
+
+    when(repository.save(entity)).thenReturn(entity);
+
+    assertEquals(entity, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).insert(entity));
+  }
+
+  @Test
+  void shouldInsertAllIntoRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.saveAll(entities)).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).insertAll(entities));
+  }
+
+  @Test
+  void shouldUpdateInRepository()
+  {
+    Object entity = new Object();
+
+    when(repository.save(entity)).thenReturn(entity);
+
+    assertEquals(entity, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).update(entity));
+  }
+
+  @Test
+  void shouldUpdateAllInRepository()
+  {
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.saveAll(entities)).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).updateAll(entities));
+  }
+
+  @Test
+  void shouldDeleteFromRepository()
+  {
+    Object entity = new Object();
+
+    when(repository.findById(1L)).thenReturn(Optional.of(entity));
+
+    assertEquals(entity, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).delete(1L).orElse(null));
+
+    verify(repository).deleteById(1L);
+  }
+
+  @Test
+  void shouldDeleteAllFromRepository()
+  {
+    List<Long> identities = List.of(1L, 2L, 3L);
+    List<Object> entities = List.of(new Object(), new Object(), new Object());
+
+    when(repository.findAllById(identities)).thenReturn(entities);
+
+    assertEquals(entities, DataRepositoryAdaptor.newInstance(repository, DEFAULT_SORT).deleteAll(identities));
+
+    verify(repository).deleteAllById(identities);
   }
 
   private Sort sort()
